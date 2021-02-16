@@ -1,0 +1,27 @@
+FROM debian
+
+RUN apt-get update && apt-get -y install locales
+
+RUN apt-get update 
+RUN apt-get -y install man sudo locate build-essential wget zsh
+
+L=NOPASSWD: ALL" > /etc/sudoers.d/burp
+RUN chsh -s /usr/bin/zsh burp
+
+USER burp
+RUN mkdir -p /home/burp/bin
+
+WORKDIR /home/burp/bin
+
+###Install Burp-Suite###
+RUN wget -O ./burp.jar 'https://portswigger.net/DownloadUpdate.ashx?Product=Free' \
+    && chmod +x ./burp.jar
+RUN echo "#! /bin/bash \n\
+java -jar /home/burp/bin/burp.jar > /dev/null 2>&1 & \n" > burpsuite \
+    && chmod +x burpsuite
+
+RUN sudo apt-get clean
+WORKDIR /home/burp
+CMD ["zsh", "-i"]
+
+
